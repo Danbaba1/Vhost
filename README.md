@@ -9,19 +9,27 @@ This project demonstrates how to set up a virtual hosting environment using Expr
 
 ## Getting Started
 
-1. Clone this repository or create a new directory for your project.
+1. Clone the repository to your preferred folder on your PC:
 
-2. Initialize the project and install dependencies:
-   ```
-   npm init -y
-   npm install express vhost
-   ```
+```
+git clone https://github.com/Danbaba1/Vhost.git
+```
 
-3. Create two files in your project directory:
-   - `virtual-domains.js`
-   - `user-domain.js`
+Alternatively, you can download the project manually and extract it to your desired location.
 
-4. Copy the provided code into each file.
+2. Navigate to the project directory:
+
+```
+cd Vhost
+```
+
+3. Install the required dependencies:
+
+```
+npm install
+```
+
+This will install all the necessary modules, including Express and vhost.
 
 ## Running the Examples
 
@@ -33,7 +41,6 @@ To run the basic virtual hosting example:
    ```
    node virtual-domains.js
    ```
-
 2. Open a web browser and navigate to:
    - `http://localhost:1337/`
    - `http://second.localhost:1337/`
@@ -48,7 +55,6 @@ To run the user-specific domain example:
    ```
    node user-domain.js
    ```
-
 2. Open a web browser and navigate to:
    - `http://john-doe.localhost:1337/`
    - `http://jane-smith.localhost:1337/profile`
