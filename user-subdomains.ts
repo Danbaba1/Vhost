@@ -1,38 +1,38 @@
-import express, { Express, IRouter, NextFunction, Request, Response } from 'express'
-import vhost from 'vhost-ts'
-const app: Express = express()
+import express, { Express, Request, Response, NextFunction, RequestHandler } from 'express';
+import vhost from 'vhost';
 
-const users: IRouter = express.Router()
-users.get('/', (req: Request, res: Response, next: NextFunction) => {
-    const username = req
-        .vhost.host[0]
+const app: Express = express();
+
+// Define a custom type for the vhost function
+type CustomVhost = (hostname: string, handler: RequestHandler) => RequestHandler;
+
+// Cast vhost to our custom type
+const customVhost = vhost as unknown as CustomVhost;
+
+// Update the VhostPopulation interface to match vhost's expectations
+type VhostPopulation = string[] & {
+    host: string;
+    hostname: string;
+};
+
+// Extend the default Request interface to include the vhost property
+interface VhostRequest extends Request {
+    vhost: VhostPopulation;
+}
+
+// Create a request handler function
+const handleVhostRequest: RequestHandler = (req: Request, res: Response, next: NextFunction) => {
+    const vhostReq = req as VhostRequest;
+    const fullHostname = vhostReq.vhost?.hostname || '';
+    const hostname = fullHostname.replace(/\.localhost$/, '');
+    const username = hostname
         .split('-')
-        .map(name => (
-            name[0].toUpperCase() +
-            name.slice(1)
-        ))
-        .join(' ')
+        .map(name => name.charAt(0).toUpperCase() + name.slice(1))
+        .join(' ');
     res.send(`Hello, ${username}`);
-});
+};
 
-// Additional dynamic routes
-users.get('/profile', (req: Request, res: Response, next: NextFunction) => {
-    const username = req.vhost.host[0].split('-')[0];
-    res.send(`Profile page for ${username}`);
-});
+// Use the custom vhost function
+app.use(customVhost('*.localhost', handleVhostRequest));
 
-users.get('/update', (req: Request, res: Response, next: NextFunction) => {
-    // Extract the username from the virtual host
-    const username = req.vhost.host[0].split('-')[0];
-    
-    // Send a response with the username
-    res.send(`Update received for ${username}`);
-});
-
-
-app.use(vhost('*.localhost', users))
-
-app.listen(
-    1337,
-    () => console.log('Web Server running on port 1337'),
-)
+app.listen(1337, () => console.log('Web Server running on port 1337'));

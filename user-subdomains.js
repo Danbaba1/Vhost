@@ -4,16 +4,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const vhost_ts_1 = __importDefault(require("vhost"));
+const vhost_ts_1 = __importDefault(require("vhost-ts"));
 const app = (0, express_1.default)();
 const users = express_1.default.Router();
 users.get('/', (req, res, next) => {
     const username = req
         .vhost.host[0]
         .split('-')
-        .map(name => (name[0].toUpperCase() +
+        .map((name) => (name[0].toUpperCase() +
         name.slice(1)))
-        .join(' '); 
+        .join(' ');
     res.send(`Hello, ${username}`);
 });
 // Additional dynamic routes
