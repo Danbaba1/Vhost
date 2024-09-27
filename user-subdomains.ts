@@ -1,38 +1,48 @@
-import express, { Express, Request, Response, NextFunction, RequestHandler } from 'express';
+import express, { Express, Request, Response, NextFunction } from 'express';
 import vhost from 'vhost';
 
 const app: Express = express();
 
-// Define a custom type for the vhost function
-type CustomVhost = (hostname: string, handler: RequestHandler) => RequestHandler;
-
-// Cast vhost to our custom type
-const customVhost = vhost as unknown as CustomVhost;
-
-// Update the VhostPopulation interface to match vhost's expectations
-type VhostPopulation = string[] & {
-    host: string;
-    hostname: string;
-};
-
 // Extend the default Request interface to include the vhost property
 interface VhostRequest extends Request {
-    vhost: VhostPopulation;
+    vhost: {
+        hostname: string;
+        host: string;
+        length: number;
+        [index: number]: string;
+    };
 }
 
-// Create a request handler function
-const handleVhostRequest: RequestHandler = (req: Request, res: Response, next: NextFunction) => {
+// Create a handler function for the vhost
+const vhostHandler = (req: Request, res: Response, next: NextFunction) => {
     const vhostReq = req as VhostRequest;
     const fullHostname = vhostReq.vhost?.hostname || '';
     const hostname = fullHostname.replace(/\.localhost$/, '');
-    const username = hostname
-        .split('-')
-        .map(name => name.charAt(0).toUpperCase() + name.slice(1))
-        .join(' ');
-    res.send(`Hello, ${username}`);
+
+    // Route handling
+    if (req.path === '/') {
+        const username = hostname
+            .split('-')
+            .map(name => name.charAt(0).toUpperCase() + name.slice(1))
+            .join(' ');
+        res.send(`Hello, ${username}`);
+    } else if (req.path === '/profile') {
+        const username = hostname.split('-')[0].charAt(0).toUpperCase() + hostname.split('-')[0].slice(1);
+        res.send(`Profile page for ${username}`);
+    } else if (req.path === '/update') {
+        const username = hostname.split('-')[0].charAt(0).toUpperCase() + hostname.split('-')[0].slice(1);
+        res.send(`Update received for ${username}`);
+    } else {
+        next();
+    }
 };
 
-// Use the custom vhost function
-app.use(customVhost('*.localhost', handleVhostRequest));
+// Use the vhost function with our handler, using explicit type casting
+app.use(vhost('*.localhost', vhostHandler as any));
+
+// Default route for non-matching requests
+app.use((req: Request, res: Response) => {
+    res.status(404).send('Not Found');
+});
 
 app.listen(1337, () => console.log('Web Server running on port 1337'));

@@ -14,9 +14,8 @@
     "example": "example"
   },
   "scripts": {
-    "build": "tsc",
-    "start:user": "nodemon --exec ts-node user-subdomains.ts",
-    "start:virtual": "nodemon --exec ts-node virtual-domains.ts"
+    "dev:user": "nodemon --exec ts-node user-subdomains.ts",
+    "dev:virtual": "nodemon --exec ts-node virtual-domains.ts"
   },
   "author": "",
   "license": "ISC",
